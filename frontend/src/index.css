@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body, #root {
+    @apply font-nunito bg-[#0F172A] text-[#F8FAFC] min-h-screen;
+  }
+}
+
+@layer components {
+  .card-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #0EA5E9, #38BDF8);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .card:hover .card-glow {
+    opacity: 1;
+  }
+  
+  .quiz-opt {
+    @apply bg-[#1E293B] border border-white/10 rounded-xl p-4 cursor-pointer text-sm font-semibold text-[#CBD5E1] transition-all mb-3 flex items-center gap-3;
+  }
+  .quiz-opt:hover {
+    @apply border-[#0EA5E9]/50 text-[#F1F5F9] bg-[#0EA5E9]/5;
+  }
+  .quiz-opt.correct {
+    @apply border-[#34D399] bg-[#34D399]/10 text-[#34D399] !important;
+  }
+  .quiz-opt.wrong {
+    @apply border-[#EF4444] bg-[#EF4444]/10 text-[#EF4444] !important;
+  }
+  
+  .spinner {
+    @apply w-9 h-9 border-4 border-[#0EA5E9]/20 border-t-[#0EA5E9] rounded-full mx-auto my-10 animate-spin;
+  }
+}
+
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
