@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-nunito: 'Nunito', sans-serif;
+}
 
 @layer base {
   body, #root {
@@ -28,10 +30,10 @@
     @apply border-[#0EA5E9]/50 text-[#F1F5F9] bg-[#0EA5E9]/5;
   }
   .quiz-opt.correct {
-    @apply border-[#34D399] bg-[#34D399]/10 text-[#34D399] !important;
+    @apply !border-[#34D399] !bg-[#34D399]/10 !text-[#34D399];
   }
   .quiz-opt.wrong {
-    @apply border-[#EF4444] bg-[#EF4444]/10 text-[#EF4444] !important;
+    @apply !border-[#EF4444] !bg-[#EF4444]/10 !text-[#EF4444];
   }
   
   .spinner {
