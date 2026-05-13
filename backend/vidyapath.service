@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn instance to serve VidyaPath FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/vidyapath/backend
+Environment="PATH=/home/ubuntu/vidyapath/backend/venv/bin"
+EnvironmentFile=/home/ubuntu/vidyapath/backend/.env
+ExecStart=/home/ubuntu/vidyapath/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

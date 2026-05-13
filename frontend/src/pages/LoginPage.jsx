@@ -52,8 +52,13 @@ function LoginPage() {
           </button>
         </form>
         
-        <div className="text-center mt-6 text-[#94A3B8] text-sm font-semibold">
-          Don't have an account? <span className="text-[#0EA5E9] cursor-pointer hover:underline" onClick={() => setUi({currentStep: 'register'})}>Create one</span>
+        <div className="text-center mt-6 text-[#94A3B8] text-sm font-semibold flex flex-col gap-2">
+          <div>
+            Don't have an account? <span className="text-[#0EA5E9] cursor-pointer hover:underline" onClick={() => setUi({currentStep: 'register'})}>Create one</span>
+          </div>
+          <div>
+            Want the desktop experience? <a href="/download" className="text-[#8B5CF6] hover:underline cursor-pointer">Download App</a>
+          </div>
         </div>
       </div>
     </div>

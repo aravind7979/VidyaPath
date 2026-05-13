@@ -11,9 +11,14 @@ function Sidebar() {
     <div className="w-full md:w-[260px] bg-[#0F172A] border-r border-[#0EA5E9]/15 p-5 shrink-0 flex flex-col gap-2 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
       <div className="text-xl font-black text-[#0EA5E9] mb-2 tracking-tight flex justify-between items-center">
         <div>📘 Vidya<span className="text-[#F8FAFC]">Path</span></div>
-        <button onClick={logout} className="text-[#94A3B8] hover:text-[#EF4444] transition-colors" title="Logout">
-          <LogOut size={18} />
-        </button>
+        <div className="flex gap-3">
+          <a href="/download" className="text-[#8B5CF6] hover:text-[#A78BFA] transition-colors text-xs font-bold flex items-center" title="Download Desktop App">
+            App ⬇
+          </a>
+          <button onClick={logout} className="text-[#94A3B8] hover:text-[#EF4444] transition-colors" title="Logout">
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
       
       <div className="bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 rounded-xl p-3 mb-3">
