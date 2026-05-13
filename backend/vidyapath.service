@@ -5,10 +5,10 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/vidyapath/backend
-Environment="PATH=/home/ubuntu/vidyapath/backend/venv/bin"
-EnvironmentFile=/home/ubuntu/vidyapath/backend/.env
-ExecStart=/home/ubuntu/vidyapath/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+WorkingDirectory=/home/ubuntu/VidyaPath/backend
+Environment="PATH=/home/ubuntu/VidyaPath/backend/venv/bin"
+EnvironmentFile=/home/ubuntu/VidyaPath/backend/.env
+ExecStart=/home/ubuntu/VidyaPath/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 Restart=always
 
 [Install]
