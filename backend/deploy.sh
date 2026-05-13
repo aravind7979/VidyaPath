@@ -8,8 +8,10 @@ echo "Pulling latest code..."
 git pull origin main
 
 # 2. Setup and activate Virtual Environment
-if [ ! -d "venv" ]; then
+if [ ! -f "venv/bin/activate" ]; then
     echo "Creating virtual environment..."
+    # Ensure python3-venv is installed on Ubuntu
+    sudo apt-get update && sudo apt-get install -y python3-venv
     python3 -m venv venv
 fi
 
