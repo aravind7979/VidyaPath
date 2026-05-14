@@ -21,7 +21,9 @@ app.add_middleware(
 )
 
 os.makedirs("./storage", exist_ok=True)
+os.makedirs("./uploads", exist_ok=True)
 app.mount("/static", StaticFiles(directory="./storage"), name="static")
+app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 
 app.include_router(auth.router)
 app.include_router(curriculum.router)

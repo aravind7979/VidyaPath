@@ -16,26 +16,47 @@ class User(Base):
     quiz_attempts = relationship("QuizAttempt", back_populates="user")
     notes = relationship("Note", back_populates="user")
 
+class ClassModel(Base):
+    __tablename__ = "classes"
+    id = Column(Integer, primary_key=True, index=True)
+    class_name = Column(String, index=True, unique=True)
+    class_number = Column(Integer, unique=True)
+
+    subjects = relationship("Subject", back_populates="class_model", cascade="all, delete-orphan")
+
+class Subject(Base):
+    __tablename__ = "subjects"
+    id = Column(Integer, primary_key=True, index=True)
+    class_id = Column(Integer, ForeignKey("classes.id"))
+    subject_name = Column(String, index=True)
+
+    class_model = relationship("ClassModel", back_populates="subjects")
+    chapters = relationship("Chapter", back_populates="subject", cascade="all, delete-orphan")
+
 class Chapter(Base):
     __tablename__ = "chapters"
     id = Column(Integer, primary_key=True, index=True)
-    class_number = Column(Integer, index=True)
-    subject = Column(String, index=True)
+    subject_id = Column(Integer, ForeignKey("subjects.id"))
     chapter_number = Column(Integer)
     chapter_name = Column(String)
 
-    assets = relationship("ContentAsset", back_populates="chapter")
-    progress = relationship("ChapterProgress", back_populates="chapter")
-    quiz_attempts = relationship("QuizAttempt", back_populates="chapter")
-    notes = relationship("Note", back_populates="chapter")
+    subject = relationship("Subject", back_populates="chapters")
+    assets = relationship("ContentAsset", back_populates="chapter", cascade="all, delete-orphan")
+    progress = relationship("ChapterProgress", back_populates="chapter", cascade="all, delete-orphan")
+    quiz_attempts = relationship("QuizAttempt", back_populates="chapter", cascade="all, delete-orphan")
+    notes = relationship("Note", back_populates="chapter", cascade="all, delete-orphan")
 
 class ContentAsset(Base):
     __tablename__ = "content_assets"
     id = Column(Integer, primary_key=True, index=True)
     chapter_id = Column(Integer, ForeignKey("chapters.id"))
-    asset_type = Column(String) # video/ppt/pdf
+    asset_type = Column(String) # video/ppt/pdf/doc/image/url
+    title = Column(String)
     file_path = Column(String, nullable=True)
     url = Column(String, nullable=True)
+    description = Column(Text, nullable=True)
+    tags = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     chapter = relationship("Chapter", back_populates="assets")
 

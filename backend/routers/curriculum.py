@@ -8,26 +8,21 @@ from database import get_db
 
 router = APIRouter(prefix="/curriculum", tags=["curriculum"])
 
-SUBJECTS = [
-    "Telugu", "Hindi", "English", "Maths", "Science", "Social Studies", "Computer Science"
-]
+@router.get("/classes", response_model=List[schemas.ClassBase])
+async def get_classes(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(models.ClassModel).order_by(models.ClassModel.class_number))
+    return result.scalars().all()
 
-@router.get("/classes")
-async def get_classes():
-    return list(range(1, 11))
+@router.get("/classes/{class_id}/subjects", response_model=List[schemas.SubjectBase])
+async def get_subjects(class_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(models.Subject).filter(models.Subject.class_id == class_id))
+    return result.scalars().all()
 
-@router.get("/{class_number}/subjects")
-async def get_subjects(class_number: int):
-    if class_number < 1 or class_number > 10:
-        raise HTTPException(status_code=404, detail="Class not found")
-    return SUBJECTS
-
-@router.get("/{class_number}/{subject}/chapters", response_model=List[schemas.ChapterBase])
-async def get_chapters(class_number: int, subject: str, current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
+@router.get("/subjects/{subject_id}/chapters", response_model=List[schemas.ChapterBase])
+async def get_chapters(subject_id: int, current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(models.Chapter)
-        .filter(models.Chapter.class_number == class_number)
-        .filter(models.Chapter.subject == subject)
+        .filter(models.Chapter.subject_id == subject_id)
         .order_by(models.Chapter.chapter_number)
     )
     chapters = result.scalars().all()
@@ -46,8 +41,7 @@ async def get_chapters(class_number: int, subject: str, current_user: models.Use
     for c in chapters:
         chapter_dict = {
             "id": c.id,
-            "class_number": c.class_number,
-            "subject": c.subject,
+            "subject_id": c.subject_id,
             "chapter_number": c.chapter_number,
             "chapter_name": c.chapter_name,
             "completed": c.id in completed_set

@@ -27,10 +27,25 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
 
+class ClassBase(BaseModel):
+    id: int
+    class_name: str
+    class_number: int
+
+    class Config:
+        from_attributes = True
+
+class SubjectBase(BaseModel):
+    id: int
+    class_id: int
+    subject_name: str
+
+    class Config:
+        from_attributes = True
+
 class ChapterBase(BaseModel):
     id: int
-    class_number: int
-    subject: str
+    subject_id: int
     chapter_number: int
     chapter_name: str
     completed: bool = False
@@ -38,10 +53,15 @@ class ChapterBase(BaseModel):
     class Config:
         from_attributes = True
 
-class AssetResponse(BaseModel):
+class AssetBase(BaseModel):
+    id: int
+    chapter_id: int
     asset_type: str
+    title: Optional[str] = None
     file_path: Optional[str] = None
     url: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[str] = None
 
     class Config:
         from_attributes = True

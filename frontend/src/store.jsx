@@ -10,9 +10,12 @@ export const AppProvider = ({ children }) => {
   const [averageScore, setAverageScore] = useState(0);
   
   const [uiState, setUiState] = useState({
-    selectedClass: null,
-    selectedSubject: null,
-    selectedChapter: null,
+    selectedClassId: null,
+    selectedClassName: null,
+    selectedSubjectId: null,
+    selectedSubjectName: null,
+    selectedChapterId: null,
+    selectedChapterName: null,
     currentStep: 'entry', // entry, login, register, class, subject, chapter, learn, quiz, score
     role: null, // 'student' or 'teacher'
     activeMode: null, // explain, video, ppt, pdf
@@ -59,9 +62,12 @@ export const AppProvider = ({ children }) => {
     setUser(null);
     setAuthToken(null);
     setUiState({
-      selectedClass: null,
-      selectedSubject: null,
-      selectedChapter: null,
+      selectedClassId: null,
+      selectedClassName: null,
+      selectedSubjectId: null,
+      selectedSubjectName: null,
+      selectedChapterId: null,
+      selectedChapterName: null,
       currentStep: 'entry',
       role: null,
       activeMode: null,

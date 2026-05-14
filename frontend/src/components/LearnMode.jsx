@@ -23,7 +23,7 @@ function LearnMode() {
   useEffect(() => {
     const fetchChapterDetails = async () => {
       try {
-        const res = await api.get(`/curriculum/${uiState.selectedClass}/${uiState.selectedSubject}/chapters`);
+        const res = await api.get(`/curriculum/subjects/${uiState.selectedSubjectId}/chapters`);
         const ch = res.data.find(c => c.id === uiState.selectedChapterId);
         if (ch) setCompleted(ch.completed);
 
@@ -34,7 +34,7 @@ function LearnMode() {
       }
     };
     if (uiState.selectedChapterId) fetchChapterDetails();
-  }, [uiState.selectedChapterId, uiState.selectedClass, uiState.selectedSubject]);
+  }, [uiState.selectedChapterId, uiState.selectedSubjectId]);
 
   const markComplete = async () => {
     try {
@@ -61,8 +61,8 @@ function LearnMode() {
     <div className="fade-in">
       <div className="flex flex-wrap justify-between items-start mb-6 gap-3">
         <div>
-          <div className="text-[22px] font-black text-[#F1F5F9] mb-1">{uiState.selectedChapter}</div>
-          <div className="text-[14px] text-[#64748B]">Class {uiState.selectedClass} · {uiState.selectedSubject}</div>
+          <div className="text-[22px] font-black text-[#F1F5F9] mb-1">{uiState.selectedChapterName}</div>
+          <div className="text-[14px] text-[#64748B]">{uiState.selectedClassName} · {uiState.selectedSubjectName}</div>
         </div>
         {completed ? (
           <div className="flex items-center gap-2 bg-[#34D399]/10 border border-[#34D399]/30 rounded-xl px-4 py-2 text-[#34D399] text-[13px] font-bold">

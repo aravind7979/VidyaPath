@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAppContext } from '../store';
-import { LogOut } from 'lucide-react';
+import { LogOut, UploadCloud } from 'lucide-react';
 
 function Sidebar() {
-  const { uiState, setUi, completedCount, averageScore, logout } = useAppContext();
+  const { uiState, setUi, completedCount, averageScore, logout, role } = useAppContext();
 
   const getClassActive = (step) => uiState.currentStep === step ? 'bg-[#0EA5E9]/15 text-[#0EA5E9] font-bold' : 'hover:bg-[#0EA5E9]/10 hover:text-[#E2E8F0] text-[#94A3B8]';
 
@@ -34,37 +34,49 @@ function Sidebar() {
       <div className="flex flex-row md:flex-col gap-1 flex-wrap">
         <div 
           className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors ${getClassActive('class')}`}
-          onClick={() => setUi({currentStep: 'class', selectedClass: null, selectedSubject: null, selectedChapter: null, activeMode: null})}
+          onClick={() => setUi({currentStep: 'class', selectedClassId: null, selectedClassName: null, selectedSubjectId: null, selectedSubjectName: null, selectedChapterId: null, selectedChapterName: null, activeMode: null})}
         >
           <div className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></div>
-          {uiState.selectedClass ? `Class ${uiState.selectedClass}` : 'Select Class'}
+          {uiState.selectedClassName ? uiState.selectedClassName : 'Select Class'}
         </div>
 
-        {uiState.selectedClass && (
+        {uiState.selectedClassId && (
           <div 
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors md:pl-6 ${getClassActive('subject')}`}
-            onClick={() => setUi({currentStep: 'subject', selectedSubject: null, selectedChapter: null, activeMode: null})}
+            onClick={() => setUi({currentStep: 'subject', selectedSubjectId: null, selectedSubjectName: null, selectedChapterId: null, selectedChapterName: null, activeMode: null})}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></div>
-            {uiState.selectedSubject || 'Select Subject'}
+            {uiState.selectedSubjectName || 'Select Subject'}
           </div>
         )}
 
-        {uiState.selectedSubject && (
+        {uiState.selectedSubjectId && (
           <div 
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] cursor-pointer transition-colors md:pl-9 ${getClassActive('chapter')}`}
-            onClick={() => setUi({currentStep: 'chapter', selectedChapter: null, activeMode: null})}
+            onClick={() => setUi({currentStep: 'chapter', selectedChapterId: null, selectedChapterName: null, activeMode: null})}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></div>
-            {uiState.selectedChapter ? (uiState.selectedChapter.length > 20 ? uiState.selectedChapter.slice(0, 20) + '…' : uiState.selectedChapter) : 'Select Chapter'}
+            {uiState.selectedChapterName ? (uiState.selectedChapterName.length > 20 ? uiState.selectedChapterName.slice(0, 20) + '…' : uiState.selectedChapterName) : 'Select Chapter'}
           </div>
         )}
 
-        {uiState.selectedChapter && ['learn', 'quiz', 'score'].includes(uiState.currentStep) && (
+        {uiState.selectedChapterId && ['learn', 'quiz', 'score'].includes(uiState.currentStep) && (
           <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] transition-colors md:pl-12 bg-[#0EA5E9]/15 text-[#0EA5E9] font-bold`}>
             <div className="w-1.5 h-1.5 rounded-full bg-current shrink-0"></div>
             {uiState.currentStep === 'learn' ? 'Learning' : uiState.currentStep === 'quiz' ? 'Quiz' : 'Score Card'}
           </div>
+        )}
+      </div>
+
+      <div className="mt-auto pt-4">
+        {uiState.role === 'teacher' && (
+          <button 
+            onClick={() => setUi({ currentStep: 'upload' })}
+            className={`w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl font-bold transition-all border ${uiState.currentStep === 'upload' ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-[0_4px_15px_rgba(139,92,246,0.3)]' : 'bg-[#1E293B] text-[#CBD5E1] border-white/5 hover:border-[#8B5CF6]/50 hover:bg-[#8B5CF6]/10 hover:text-[#8B5CF6]'}`}
+          >
+            <UploadCloud size={18} />
+            <span>Upload Content</span>
+          </button>
         )}
       </div>
     </div>

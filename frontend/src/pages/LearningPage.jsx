@@ -9,6 +9,7 @@ import Assessment from '../components/Assessment';
 import ScoreCard from '../components/ScoreCard';
 import Notepad from '../components/Notepad';
 import NotepadTrigger from '../components/NotepadTrigger';
+import UploadDashboard from './UploadDashboard';
 
 function LearningPage() {
   const { uiState } = useAppContext();
@@ -21,6 +22,7 @@ function LearningPage() {
       case 'learn': return <LearnMode />;
       case 'quiz': return <Assessment />;
       case 'score': return <ScoreCard />;
+      case 'upload': return <UploadDashboard />;
       default: return <ClassGrid />;
     }
   };
