@@ -10,7 +10,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login(email, password, true); // true = isTeacher
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed');
     }
@@ -21,9 +21,9 @@ function LoginPage() {
       <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-8 w-full max-w-md shadow-2xl">
         <div className="text-center mb-8">
           <div className="text-3xl font-black text-[#0EA5E9] tracking-tight mb-2">
-            📘 Vidya<span className="text-[#F8FAFC]">Path</span>
+            👨‍🏫 Teacher<span className="text-[#F8FAFC]">Login</span>
           </div>
-          <p className="text-[#94A3B8] font-medium">Welcome back! Please login to your account.</p>
+          <p className="text-[#94A3B8] font-medium">Please login to your teacher account.</p>
         </div>
         
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-6 text-sm text-center">{error}</div>}
@@ -54,10 +54,10 @@ function LoginPage() {
         
         <div className="text-center mt-6 text-[#94A3B8] text-sm font-semibold flex flex-col gap-2">
           <div>
-            Don't have an account? <span className="text-[#0EA5E9] cursor-pointer hover:underline" onClick={() => setUi({currentStep: 'register'})}>Create one</span>
+            Don't have a teacher account? <span className="text-[#0EA5E9] cursor-pointer hover:underline" onClick={() => setUi({currentStep: 'register'})}>Create one</span>
           </div>
           <div>
-            Want the desktop experience? <a href="/download" className="text-[#8B5CF6] hover:underline cursor-pointer">Download App</a>
+            <span className="text-[#8B5CF6] hover:underline cursor-pointer" onClick={() => setUi({currentStep: 'entry'})}>← Back to Entry</span>
           </div>
         </div>
       </div>

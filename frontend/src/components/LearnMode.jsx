@@ -80,7 +80,7 @@ function LearnMode() {
 
       {!uiState.activeMode ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MODES.map(m => (
+          {MODES.filter(m => !(uiState.role === 'teacher' && m.id === 'quiz')).map(m => (
             <div 
               key={m.id} 
               className="bg-[#1E293B] border border-white/5 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:border-[#0EA5E9]/40 hover:shadow-[0_12px_40px_rgba(14,165,233,0.12)]"

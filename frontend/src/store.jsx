@@ -13,12 +13,13 @@ export const AppProvider = ({ children }) => {
     selectedClass: null,
     selectedSubject: null,
     selectedChapter: null,
-    currentStep: 'login', // login, register, class, subject, chapter, learn, quiz, score
+    currentStep: 'entry', // entry, login, register, class, subject, chapter, learn, quiz, score
+    role: null, // 'student' or 'teacher'
     activeMode: null, // explain, video, ppt, pdf
     showNotepad: false
   });
 
-  const login = async (email, password) => {
+  const login = async (email, password, isTeacher = false) => {
     const res = await api.post('/auth/login', { email, password });
     const { access_token } = res.data;
     setToken(access_token);
@@ -27,7 +28,25 @@ export const AppProvider = ({ children }) => {
     const userRes = await api.get('/auth/me');
     setUser(userRes.data);
     updateProgress();
-    setUiState(prev => ({ ...prev, currentStep: 'class' }));
+    setUiState(prev => ({ 
+      ...prev, 
+      currentStep: 'class',
+      role: isTeacher ? 'teacher' : 'student' 
+    }));
+  };
+
+  const studentAutoLogin = async (rollNumber) => {
+    const email = `student${rollNumber}@vidyapath.local`;
+    const password = `student_secret_pass_${rollNumber}`;
+    const name = `Roll Number ${rollNumber}`;
+
+    try {
+      // Attempt login first
+      await login(email, password, false);
+    } catch (e) {
+      // If login fails (user doesn't exist), register then login
+      await register(name, email, password, 1);
+    }
   };
 
   const register = async (name, email, password, classNumber) => {
@@ -43,7 +62,8 @@ export const AppProvider = ({ children }) => {
       selectedClass: null,
       selectedSubject: null,
       selectedChapter: null,
-      currentStep: 'login',
+      currentStep: 'entry',
+      role: null,
       activeMode: null,
       showNotepad: false
     });
@@ -65,7 +85,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
-      token, user, login, register, logout,
+      token, user, login, register, logout, studentAutoLogin,
       completedCount, averageScore, updateProgress,
       uiState, setUi
     }}>
