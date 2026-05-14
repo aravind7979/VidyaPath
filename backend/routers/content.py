@@ -7,7 +7,8 @@ import uuid
 import models, schemas, auth
 from database import get_db
 from pydantic import BaseModel
-import google.generativeai as genai
+import os
+from google import genai
 
 router = APIRouter(prefix="/content", tags=["content"])
 
@@ -74,7 +75,17 @@ async def upload_content(
 @router.post("/ai-metadata", response_model=AIMetadataResponse)
 async def generate_ai_metadata(req: AIMetadataRequest, current_user: models.User = Depends(auth.get_current_user)):
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "your-gemini-api-key":
+            return {
+                "suggested_title": req.filename.split('.')[0].replace('_', ' '),
+                "suggested_tags": "General",
+                "suggested_subject": "General",
+                "suggested_chapter": "Chapter 1",
+                "description": "Mock description since API key is not set."
+            }
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
         prompt = f"""
         You are an AI assistant for a school curriculum system.
         The teacher is uploading a file named: '{req.filename}'
@@ -90,7 +101,10 @@ async def generate_ai_metadata(req: AIMetadataRequest, current_user: models.User
         
         Respond ONLY with valid JSON.
         """
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
         text = response.text.strip()
         if text.startswith("```json"):
             text = text.replace("```json", "", 1)
