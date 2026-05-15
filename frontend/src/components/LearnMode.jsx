@@ -8,9 +8,8 @@ import PDFViewer from './PDFViewer';
 import Assessment from './Assessment';
 
 const MODES = [
-  { id: 'explain', icon: '📖', title: 'General Explanation', desc: 'AI-generated structured explanation of this chapter' },
   { id: 'video', icon: '🎬', title: 'Video Explanation', desc: 'Watch a curated video for this chapter' },
-  { id: 'ppt', icon: '📊', title: 'PPT Presentation', desc: 'View a slideshow for this chapter' },
+  { id: 'explain', icon: '📖', title: 'General Explanation', desc: 'AI-generated structured explanation of this chapter' },
   { id: 'pdf', icon: '📄', title: 'PDF Document', desc: 'Access a PDF for this chapter' },
   { id: 'quiz', icon: '📝', title: 'Assessment', desc: 'Test your knowledge with MCQ or Descriptive Quiz' },
 ];
@@ -50,7 +49,6 @@ function LearnMode() {
     switch (uiState.activeMode) {
       case 'explain': return <GeneralExplanation />;
       case 'video': return <VideoExplanation assets={assets} />;
-      case 'ppt': return <PPTViewer assets={assets} />;
       case 'pdf': return <PDFViewer assets={assets} />;
       case 'quiz': return <Assessment />;
       default: return null;

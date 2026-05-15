@@ -10,8 +10,11 @@ function UploadDashboard() {
   const [selectedClassId, setSelectedClassId] = useState('');
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedChapterId, setSelectedChapterId] = useState('');
+  
+  const [activeTab, setActiveTab] = useState('upload_content'); // 'upload_content' or 'auto_generate'
 
   const [file, setFile] = useState(null);
+  const [indexFile, setIndexFile] = useState(null);
   const [metadata, setMetadata] = useState({
     title: '',
     assetType: 'video',
@@ -23,7 +26,11 @@ function UploadDashboard() {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   
+  const [indexUploading, setIndexUploading] = useState(false);
+  const [indexSuccess, setIndexSuccess] = useState('');
+  
   const fileInputRef = useRef(null);
+  const indexInputRef = useRef(null);
 
   useEffect(() => {
     api.get('/curriculum/classes').then(res => setClasses(res.data));
@@ -113,11 +120,64 @@ function UploadDashboard() {
     }
   };
 
+  const handleIndexFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setIndexFile(selectedFile);
+      setIndexSuccess('');
+    }
+  };
+
+  const handleAutoGenerate = async () => {
+    if (!selectedClassId || !selectedSubjectId || !indexFile) {
+      alert("Please select a class, a subject, and an index image.");
+      return;
+    }
+
+    setIndexUploading(true);
+    const formData = new FormData();
+    formData.append('class_id', selectedClassId);
+    formData.append('subject_id', selectedSubjectId);
+    formData.append('file', indexFile);
+
+    try {
+      const res = await api.post('/curriculum/upload-index', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setIndexSuccess(res.data.message);
+      setIndexFile(null);
+      if (indexInputRef.current) indexInputRef.current.value = '';
+      
+      // Refresh chapters
+      const chaptersRes = await api.get(`/curriculum/subjects/${selectedSubjectId}/chapters`);
+      setChapters(chaptersRes.data);
+    } catch (err) {
+      alert("Auto-generate failed: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setIndexUploading(false);
+    }
+  };
+
   return (
     <div className="fade-in max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-[#F8FAFC] tracking-tight mb-2">Content Upload</h1>
         <p className="text-[#94A3B8]">AI-powered curriculum management dashboard.</p>
+      </div>
+
+      <div className="flex border-b border-white/10 mb-8">
+        <button
+          className={`pb-4 px-6 font-bold transition-all ${activeTab === 'upload_content' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
+          onClick={() => setActiveTab('upload_content')}
+        >
+          Upload Content
+        </button>
+        <button
+          className={`pb-4 px-6 font-bold transition-all flex items-center gap-2 ${activeTab === 'auto_generate' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
+          onClick={() => setActiveTab('auto_generate')}
+        >
+          <Sparkles size={16} /> Auto-Generate Chapters
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -148,7 +208,8 @@ function UploadDashboard() {
           </select>
         </div>
 
-        {/* Chapter Selection */}
+        {/* Chapter Selection (Only in Upload Content) */}
+        {activeTab === 'upload_content' && (
         <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-5">
           <label className="block text-sm font-bold text-[#CBD5E1] mb-2">3. Select Chapter</label>
           <select 
@@ -161,8 +222,10 @@ function UploadDashboard() {
             {chapters.map(ch => <option key={ch.id} value={ch.id}>Ch {ch.chapter_number}: {ch.chapter_name}</option>)}
           </select>
         </div>
+        )}
       </div>
 
+      {activeTab === 'upload_content' ? (
       <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
         <label className="block text-sm font-bold text-[#CBD5E1] mb-4">4. Upload File</label>
         
@@ -259,6 +322,54 @@ function UploadDashboard() {
           </div>
         )}
       </div>
+      ) : (
+      <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
+        <label className="block text-sm font-bold text-[#CBD5E1] mb-4">3. Upload Index Image</label>
+        <p className="text-[#94A3B8] text-sm mb-6">Upload a photo of the textbook's index page. Our AI will extract the chapter numbers and titles and instantly create them in the database.</p>
+        
+        <div className="border-2 border-dashed border-[#334155] rounded-2xl p-8 text-center hover:border-[#8B5CF6] transition-colors relative cursor-pointer" onClick={() => indexInputRef.current?.click()}>
+          <input 
+            type="file" 
+            accept="image/*"
+            className="hidden" 
+            ref={indexInputRef} 
+            onChange={handleIndexFileChange}
+          />
+          {indexFile ? (
+            <div className="flex flex-col items-center gap-2">
+              <FileText size={48} className="text-[#8B5CF6]" />
+              <div className="text-[#F8FAFC] font-bold text-lg">{indexFile.name}</div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <UploadCloud size={48} className="text-[#64748B]" />
+              <div className="text-[#F8FAFC] font-bold text-lg">Click to select an image</div>
+              <div className="text-[#94A3B8] text-sm">Supports PNG, JPG, JPEG</div>
+            </div>
+          )}
+        </div>
+
+        {indexFile && (
+          <div className="mt-8">
+            <button 
+              onClick={handleAutoGenerate}
+              disabled={indexUploading}
+              className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            >
+              {indexUploading ? <Loader2 className="animate-spin" /> : <Sparkles />}
+              {indexUploading ? "AI is analyzing image..." : "Generate Chapters via AI"}
+            </button>
+            
+            {indexSuccess && (
+              <div className="mt-4 bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] p-4 rounded-xl flex items-center gap-3">
+                <CheckCircle />
+                <span className="font-bold">{indexSuccess}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      )}
     </div>
   );
 }
