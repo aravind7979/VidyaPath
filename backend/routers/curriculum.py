@@ -10,6 +10,7 @@ import os
 import json
 from google import genai
 from google.genai import types
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/curriculum", tags=["curriculum"])
 
@@ -118,13 +119,15 @@ async def upload_index(
         print("AI Processing Error:", str(e))
         raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
 
-class ChapterCreate(schemas.ChapterBase):
-    pass
+class ChapterCreateRequest(BaseModel):
+    chapter_number: int
+    chapter_name: str
+    subject_id: int
 
 @router.post("/subjects/{subject_id}/chapters", response_model=schemas.ChapterBase)
 async def create_chapter(
     subject_id: int, 
-    chapter: schemas.ChapterBase, 
+    chapter: ChapterCreateRequest, 
     current_user: models.User = Depends(auth.get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
