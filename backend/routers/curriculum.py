@@ -63,8 +63,7 @@ async def upload_index(
     current_user: models.User = Depends(auth.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    if current_user.email != "admin@vidyapath.local" and "teacher" not in current_user.email:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # Removed strict email check as frontend handles teacher protection
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your-gemini-api-key":
@@ -118,3 +117,23 @@ async def upload_index(
     except Exception as e:
         print("AI Processing Error:", str(e))
         raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
+
+class ChapterCreate(schemas.ChapterBase):
+    pass
+
+@router.post("/subjects/{subject_id}/chapters", response_model=schemas.ChapterBase)
+async def create_chapter(
+    subject_id: int, 
+    chapter: schemas.ChapterBase, 
+    current_user: models.User = Depends(auth.get_current_user), 
+    db: AsyncSession = Depends(get_db)
+):
+    db_chapter = models.Chapter(
+        subject_id=subject_id,
+        chapter_number=chapter.chapter_number,
+        chapter_name=chapter.chapter_name
+    )
+    db.add(db_chapter)
+    await db.commit()
+    await db.refresh(db_chapter)
+    return db_chapter

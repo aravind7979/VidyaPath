@@ -29,6 +29,11 @@ function UploadDashboard() {
   const [indexUploading, setIndexUploading] = useState(false);
   const [indexSuccess, setIndexSuccess] = useState('');
   
+  const [manualChapterName, setManualChapterName] = useState('');
+  const [manualChapterNumber, setManualChapterNumber] = useState('');
+  const [manualUploading, setManualUploading] = useState(false);
+  const [manualSuccess, setManualSuccess] = useState('');
+  
   const fileInputRef = useRef(null);
   const indexInputRef = useRef(null);
 
@@ -155,6 +160,33 @@ function UploadDashboard() {
       alert("Auto-generate failed: " + (err.response?.data?.detail || err.message));
     } finally {
       setIndexUploading(false);
+    }
+  };
+
+  const handleManualGenerate = async () => {
+    if (!selectedClassId || !selectedSubjectId || !manualChapterName || !manualChapterNumber) {
+      alert("Please select class, subject, and enter chapter details.");
+      return;
+    }
+    setManualUploading(true);
+    try {
+      await api.post(`/curriculum/subjects/${selectedSubjectId}/chapters`, {
+        chapter_number: parseInt(manualChapterNumber),
+        chapter_name: manualChapterName,
+        subject_id: parseInt(selectedSubjectId)
+      });
+      setManualSuccess(`Chapter ${manualChapterNumber}: ${manualChapterName} added manually!`);
+      setManualChapterName('');
+      setManualChapterNumber('');
+      setTimeout(() => setManualSuccess(''), 3000);
+      
+      // Refresh chapters
+      const chaptersRes = await api.get(`/curriculum/subjects/${selectedSubjectId}/chapters`);
+      setChapters(chaptersRes.data);
+    } catch (err) {
+      alert("Manual add failed: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setManualUploading(false);
     }
   };
 
@@ -368,6 +400,46 @@ function UploadDashboard() {
             )}
           </div>
         )}
+
+        <div className="mt-12 border-t border-white/10 pt-8">
+          <label className="block text-sm font-bold text-[#CBD5E1] mb-4">Or Manual Upload Chapter</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs font-bold text-[#94A3B8] mb-1 uppercase tracking-wider">Chapter Number</label>
+              <input 
+                type="number" 
+                value={manualChapterNumber} 
+                onChange={e => setManualChapterNumber(e.target.value)}
+                placeholder="e.g. 1"
+                className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#94A3B8] mb-1 uppercase tracking-wider">Chapter Name</label>
+              <input 
+                type="text" 
+                value={manualChapterName} 
+                onChange={e => setManualChapterName(e.target.value)}
+                placeholder="e.g. Introduction to Physics"
+                className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none"
+              />
+            </div>
+          </div>
+          <button 
+            onClick={handleManualGenerate}
+            disabled={manualUploading}
+            className="w-full bg-[#334155] hover:bg-[#475569] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+          >
+            {manualUploading ? <Loader2 className="animate-spin" /> : null}
+            {manualUploading ? "Adding Chapter..." : "Add Chapter Manually"}
+          </button>
+          {manualSuccess && (
+            <div className="mt-4 bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] p-4 rounded-xl flex items-center gap-3">
+              <CheckCircle />
+              <span className="font-bold">{manualSuccess}</span>
+            </div>
+          )}
+        </div>
       </div>
       )}
     </div>
