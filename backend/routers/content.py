@@ -150,7 +150,7 @@ async def upload_manual_text(
 class ManualQuizRequest(BaseModel):
     chapter_id: int
     title: str
-    quiz_data: dict
+    quiz_data: list
 
 @router.post("/manual-quiz")
 async def upload_manual_quiz(
