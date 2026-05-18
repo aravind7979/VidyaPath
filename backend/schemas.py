@@ -43,6 +43,10 @@ class SubjectBase(BaseModel):
     class Config:
         from_attributes = True
 
+class SubjectProgressResponse(SubjectBase):
+    total_chapters: int
+    completed_chapters: int
+
 class ChapterBase(BaseModel):
     id: int
     subject_id: int

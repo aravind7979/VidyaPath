@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../store';
 import api from '../api';
+import KnowledgeBrain from './KnowledgeBrain';
 
 const SUBJECT_ICONS = {
   "Telugu": { emoji: "📜", color: "#F59E0B" },
@@ -47,9 +48,24 @@ function SubjectGrid() {
               onClick={() => setUi({selectedSubjectId: sub.id, selectedSubjectName: sub.subject_name, currentStep: 'chapter'})}
             >
               <div className="card-glow"></div>
-              <div className="text-4xl mb-3">{info.emoji}</div>
-              <div className="text-base font-extrabold text-[#F1F5F9]">{sub.subject_name}</div>
-              <div className="w-8 h-1 rounded-full mt-2" style={{background: info.color}}></div>
+              
+              <div className="flex justify-between items-start mb-3 relative z-10">
+                <div className="text-4xl">{info.emoji}</div>
+                <KnowledgeBrain 
+                  percentage={sub.total_chapters > 0 ? (sub.completed_chapters / sub.total_chapters) * 100 : 0} 
+                  color={info.color} 
+                  size="w-12 h-12"
+                />
+              </div>
+              
+              <div className="text-base font-extrabold text-[#F1F5F9] relative z-10">{sub.subject_name}</div>
+              
+              <div className="flex justify-between items-center mt-2 relative z-10">
+                <div className="text-xs font-bold text-[#94A3B8]">
+                  {sub.completed_chapters} / {sub.total_chapters} Chapters
+                </div>
+                <div className="w-8 h-1 rounded-full" style={{background: info.color}}></div>
+              </div>
             </div>
           );
         })}

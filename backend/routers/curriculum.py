@@ -19,10 +19,39 @@ async def get_classes(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(models.ClassModel).order_by(models.ClassModel.class_number))
     return result.scalars().all()
 
-@router.get("/classes/{class_id}/subjects", response_model=List[schemas.SubjectBase])
-async def get_subjects(class_id: int, db: AsyncSession = Depends(get_db)):
+@router.get("/classes/{class_id}/subjects", response_model=List[schemas.SubjectProgressResponse])
+async def get_subjects(class_id: int, current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(models.Subject).filter(models.Subject.class_id == class_id))
-    return result.scalars().all()
+    subjects = result.scalars().all()
+    
+    response_data = []
+    for sub in subjects:
+        # Get total chapters for this subject
+        ch_result = await db.execute(select(models.Chapter).filter(models.Chapter.subject_id == sub.id))
+        chapters = ch_result.scalars().all()
+        total_chapters = len(chapters)
+        
+        # Get completed chapters for this subject and this user
+        completed_chapters = 0
+        if chapters:
+            chapter_ids = [c.id for c in chapters]
+            prog_result = await db.execute(
+                select(models.ChapterProgress)
+                .filter(models.ChapterProgress.user_id == current_user.id)
+                .filter(models.ChapterProgress.chapter_id.in_(chapter_ids))
+                .filter(models.ChapterProgress.completed == True)
+            )
+            completed_chapters = len(prog_result.scalars().all())
+            
+        response_data.append({
+            "id": sub.id,
+            "class_id": sub.class_id,
+            "subject_name": sub.subject_name,
+            "total_chapters": total_chapters,
+            "completed_chapters": completed_chapters
+        })
+        
+    return response_data
 
 @router.get("/subjects/{subject_id}/chapters", response_model=List[schemas.ChapterBase])
 async def get_chapters(subject_id: int, current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
