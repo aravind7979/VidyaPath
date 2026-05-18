@@ -35,11 +35,11 @@ function LearnMode() {
     if (uiState.selectedChapterId) fetchChapterDetails();
   }, [uiState.selectedChapterId, uiState.selectedSubjectId]);
 
-  const markComplete = async () => {
+  const markSectionComplete = async (section) => {
     try {
-      await api.post('/progress/complete', { chapter_id: uiState.selectedChapterId });
-      setCompleted(true);
+      await api.post('/curriculum/progress/mark', { chapter_id: uiState.selectedChapterId, section });
       updateProgress();
+      alert(`🎉 Excellent! You have completed the ${section} section!`);
     } catch (e) {
       console.error(e);
     }
@@ -47,9 +47,9 @@ function LearnMode() {
 
   const renderActiveMode = () => {
     switch (uiState.activeMode) {
-      case 'explain': return <GeneralExplanation />;
-      case 'video': return <VideoExplanation assets={assets} />;
-      case 'pdf': return <PDFViewer assets={assets} />;
+      case 'explain': return <GeneralExplanation onComplete={() => markSectionComplete('explanation')} />;
+      case 'video': return <VideoExplanation assets={assets} onComplete={() => markSectionComplete('video')} />;
+      case 'pdf': return <PDFViewer assets={assets} onComplete={() => markSectionComplete('pdf')} />;
       case 'quiz': return <Assessment />;
       default: return null;
     }
@@ -62,17 +62,10 @@ function LearnMode() {
           <div className="text-[22px] font-black text-[#F1F5F9] mb-1">{uiState.selectedChapterName}</div>
           <div className="text-[14px] text-[#64748B]">{uiState.selectedClassName} · {uiState.selectedSubjectName}</div>
         </div>
-        {completed ? (
-          <div className="flex items-center gap-2 bg-[#34D399]/10 border border-[#34D399]/30 rounded-xl px-4 py-2 text-[#34D399] text-[13px] font-bold">
-            ✓ Chapter Completed
+        {completed && (
+          <div className="flex items-center gap-2 bg-[#34D399]/10 border border-[#34D399]/30 rounded-xl px-4 py-2 text-[#34D399] text-[13px] font-bold shadow-lg">
+            ✓ Chapter Fully Mastered
           </div>
-        ) : (
-          <button 
-            onClick={markComplete}
-            className="bg-[#059669] hover:bg-[#047857] text-white font-bold py-2 px-4 rounded-xl text-sm transition-all transform hover:-translate-y-0.5"
-          >
-            Mark as Complete ✓
-          </button>
         )}
       </div>
 

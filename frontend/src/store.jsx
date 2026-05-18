@@ -77,9 +77,9 @@ export const AppProvider = ({ children }) => {
 
   const updateProgress = async () => {
     try {
-      const res = await api.get('/progress/summary');
-      setCompletedCount(res.data.completed_chapters);
-      setAverageScore(res.data.average_score);
+      const res = await api.get('/curriculum/global-stats');
+      setCompletedCount(res.data.chapters_done);
+      setAverageScore(res.data.avg_score);
     } catch (e) {
       console.error("Failed to load progress summary", e);
     }
@@ -91,7 +91,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
-      token, user, login, register, logout, studentAutoLogin,
+      token, user, setUser, login, register, logout, studentAutoLogin,
       completedCount, averageScore, updateProgress,
       uiState, setUi
     }}>

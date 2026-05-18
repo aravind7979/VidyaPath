@@ -91,5 +91,12 @@ class DescriptiveSubmit(BaseModel):
 class CompleteChapter(BaseModel):
     chapter_id: int
 
+class MarkProgressRequest(BaseModel):
+    chapter_id: int
+    section: str # video, explanation, or pdf
+
+class UserUpdate(BaseModel):
+    name: str
+
 class NoteUpdate(BaseModel):
     content: str

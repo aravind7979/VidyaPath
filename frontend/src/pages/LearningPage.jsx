@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../store';
+import api from '../api';
 import Sidebar from '../components/Sidebar';
 import ClassGrid from '../components/ClassGrid';
 import SubjectGrid from '../components/SubjectGrid';
@@ -12,7 +13,27 @@ import NotepadTrigger from '../components/NotepadTrigger';
 import UploadDashboard from './UploadDashboard';
 
 function LearningPage() {
-  const { uiState, setUi } = useAppContext();
+  const { uiState, setUi, logout, user, setUser } = useAppContext();
+  
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [tempName, setTempName] = useState('');
+
+  useEffect(() => {
+    if (user && user.name && user.name.startsWith("Roll Number") && uiState.currentStep === 'class') {
+      setShowNameModal(true);
+    }
+  }, [user, uiState.currentStep]);
+
+  const handleSaveName = async () => {
+    if (!tempName.trim()) return;
+    try {
+      const res = await api.put('/auth/me', { name: tempName });
+      setUser(res.data);
+      setShowNameModal(false);
+    } catch (e) {
+      console.error("Failed to update name", e);
+    }
+  };
 
   const handleBack = () => {
     switch (uiState.currentStep) {
@@ -22,11 +43,12 @@ function LearningPage() {
       case 'quiz':
       case 'score': setUi({ currentStep: 'chapter' }); break;
       case 'upload': setUi({ currentStep: 'class' }); break;
+      case 'class': logout(); break;
       default: break;
     }
   };
 
-  const canGoBack = ['subject', 'chapter', 'learn', 'quiz', 'score', 'upload'].includes(uiState.currentStep);
+  const canGoBack = ['class', 'subject', 'chapter', 'learn', 'quiz', 'score', 'upload'].includes(uiState.currentStep);
 
   const renderContent = () => {
     switch (uiState.currentStep) {
@@ -70,6 +92,33 @@ function LearningPage() {
         {/* Floating Trigger */}
         {showTrigger && <NotepadTrigger />}
       </div>
+
+      {/* Name Personalization Modal */}
+      {showNameModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
+          <div className="bg-[#1E293B] border border-white/10 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <h2 className="text-2xl font-black text-white mb-2">Welcome to VidyaPath! 👋</h2>
+            <p className="text-[#94A3B8] mb-6 text-sm">Please enter your name so we can personalize your dashboard.</p>
+            
+            <input 
+              type="text" 
+              value={tempName} 
+              onChange={e => setTempName(e.target.value)}
+              placeholder="Your Full Name"
+              className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none mb-6"
+              autoFocus
+            />
+            
+            <button 
+              onClick={handleSaveName}
+              disabled={!tempName.trim()}
+              className="w-full bg-[#0EA5E9] hover:bg-[#0284C7] text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

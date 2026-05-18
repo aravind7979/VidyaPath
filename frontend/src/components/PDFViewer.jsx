@@ -1,7 +1,7 @@
 import React from 'react';
 import api from '../api';
 
-function PDFViewer({ assets }) {
+function PDFViewer({ assets, onComplete }) {
   const pdfAsset = assets.find(a => a.asset_type === 'pdf');
 
   return (
@@ -31,6 +31,17 @@ function PDFViewer({ assets }) {
           >
             Open PDF
           </a>
+        </div>
+      )}
+      
+      {pdfAsset && (
+        <div className="mt-8 flex justify-center border-t border-white/10 pt-6">
+          <button 
+            onClick={onComplete}
+            className="bg-[#059669] hover:bg-[#047857] text-white font-bold py-3 px-8 rounded-xl text-base transition-all transform hover:-translate-y-1 shadow-[0_8px_20px_rgba(5,150,105,0.2)]"
+          >
+            Mark PDF as Complete ✓
+          </button>
         </div>
       )}
     </div>

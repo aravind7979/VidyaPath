@@ -47,3 +47,14 @@ async def login(user_credentials: schemas.UserLogin, db: AsyncSession = Depends(
 @router.get("/me", response_model=schemas.UserResponse)
 async def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+@router.put("/me", response_model=schemas.UserResponse)
+async def update_users_me(
+    user_update: schemas.UserUpdate,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    current_user.name = user_update.name
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user

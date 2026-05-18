@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { useAppContext } from '../store';
 import api from '../api';
 
-function GeneralExplanation() {
+function GeneralExplanation({ onComplete }) {
   const { uiState } = useAppContext();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -78,6 +78,17 @@ function GeneralExplanation() {
       {content && (
         <div className="prose prose-invert prose-p:text-[#CBD5E1] prose-p:leading-relaxed prose-headings:text-[#0EA5E9] prose-h3:text-lg prose-h3:font-black prose-li:text-[#CBD5E1] max-w-none text-[15px]">
           <ReactMarkdown>{content}</ReactMarkdown>
+        </div>
+      )}
+      
+      {content && !loading && (
+        <div className="mt-8 flex justify-center border-t border-white/10 pt-6">
+          <button 
+            onClick={onComplete}
+            className="bg-[#059669] hover:bg-[#047857] text-white font-bold py-3 px-8 rounded-xl text-base transition-all transform hover:-translate-y-1 shadow-[0_8px_20px_rgba(5,150,105,0.2)]"
+          >
+            Mark Explanation as Complete ✓
+          </button>
         </div>
       )}
     </div>

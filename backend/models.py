@@ -66,6 +66,9 @@ class ChapterProgress(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     chapter_id = Column(Integer, ForeignKey("chapters.id"))
     completed = Column(Boolean, default=False)
+    video_completed = Column(Boolean, default=False)
+    explanation_completed = Column(Boolean, default=False)
+    pdf_completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="progress")

@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { useAppContext } from '../store';
 import api from '../api';
 
-function VideoExplanation({ assets }) {
+function VideoExplanation({ assets, onComplete }) {
   const { uiState } = useAppContext();
   const videoAsset = assets.find(a => a.asset_type === 'video');
 
@@ -95,6 +95,15 @@ function VideoExplanation({ assets }) {
           )}
         </div>
       )}
+      
+      <div className="mt-8 flex justify-center border-t border-white/10 pt-6">
+        <button 
+          onClick={onComplete}
+          className="bg-[#059669] hover:bg-[#047857] text-white font-bold py-3 px-8 rounded-xl text-base transition-all transform hover:-translate-y-1 shadow-[0_8px_20px_rgba(5,150,105,0.2)]"
+        >
+          Mark Video as Complete ✓
+        </button>
+      </div>
     </div>
   );
 }

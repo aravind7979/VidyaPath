@@ -53,7 +53,7 @@ function EntryPage() {
 
       <div className="max-w-6xl mx-auto w-full mt-12 flex-1 flex flex-col">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black text-[#F8FAFC] mb-3">Classroom Access</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#F8FAFC] mb-3">Choose Your Roll Number</h1>
           <p className="text-[#94A3B8] text-lg">Please select your assigned Roll Number to enter the learning module.</p>
         </div>
 

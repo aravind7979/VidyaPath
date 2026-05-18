@@ -3,7 +3,7 @@ import { useAppContext } from '../store';
 import { LogOut, UploadCloud } from 'lucide-react';
 
 function Sidebar() {
-  const { uiState, setUi, completedCount, averageScore, logout, role } = useAppContext();
+  const { uiState, setUi, completedCount, averageScore, logout, role, user } = useAppContext();
 
   const getClassActive = (step) => uiState.currentStep === step ? 'bg-[#0EA5E9]/15 text-[#0EA5E9] font-bold' : 'hover:bg-[#0EA5E9]/10 hover:text-[#E2E8F0] text-[#94A3B8]';
 
@@ -21,13 +21,19 @@ function Sidebar() {
         </div>
       </div>
       
+      {user && user.name && !user.name.startsWith("Roll Number") && (
+        <div className="text-center py-2 text-[#CBD5E1] text-sm font-bold bg-[#1E293B] rounded-xl border border-white/5 mb-3 shadow-sm">
+          👋 Hi, {user.name}
+        </div>
+      )}
+
       <div className="bg-[#0EA5E9]/10 border border-[#0EA5E9]/20 rounded-xl p-3 mb-3">
         <div className="text-[11px] uppercase tracking-widest text-[#94A3B8] mb-2">Progress</div>
         <div className="flex justify-between text-[13px] text-[#CBD5E1] mb-1">
           Chapters Done <span className="text-[#0EA5E9] font-bold">{completedCount}</span>
         </div>
         <div className="flex justify-between text-[13px] text-[#CBD5E1]">
-          Avg Score <span className="text-[#0EA5E9] font-bold">{averageScore > 0 ? `${averageScore}/5` : '—'}</span>
+          Avg Score <span className="text-[#0EA5E9] font-bold">{averageScore > 0 ? `${averageScore}%` : '—'}</span>
         </div>
       </div>
       

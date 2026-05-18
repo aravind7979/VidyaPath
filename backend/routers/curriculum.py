@@ -40,11 +40,10 @@ async def get_subjects(class_id: int, current_user: models.User = Depends(auth.g
                 select(models.ChapterProgress)
                 .filter(models.ChapterProgress.user_id == current_user.id)
                 .filter(models.ChapterProgress.chapter_id.in_(chapter_ids))
-                .filter(models.ChapterProgress.completed == True)
             )
             prog_records = prog_result.scalars().all()
-            completed_chapters = len(prog_records)
-            completed_set = {p.chapter_id for p in prog_records}
+            
+            prog_dict = {p.chapter_id: p for p in prog_records}
 
             # Quiz scores (70%)
             quiz_result = await db.execute(
@@ -62,9 +61,24 @@ async def get_subjects(class_id: int, current_user: models.User = Depends(auth.g
                         quiz_scores[q.chapter_id] = percentage
                         
             for ch_id in chapter_ids:
-                view_prog = 30 if ch_id in completed_set else 0
+                p = prog_dict.get(ch_id)
+                vid_prog = 10 if (p and p.video_completed) else 0
+                exp_prog = 10 if (p and p.explanation_completed) else 0
+                pdf_prog = 10 if (p and p.pdf_completed) else 0
+                
+                # Backwards compat: if 'completed' is true, give 30
+                if p and p.completed:
+                    view_prog = 30
+                else:
+                    view_prog = vid_prog + exp_prog + pdf_prog
+                    
                 quiz_prog = quiz_scores.get(ch_id, 0)
-                total_progress_sum += (view_prog + quiz_prog)
+                
+                ch_total = view_prog + quiz_prog
+                total_progress_sum += ch_total
+                
+                if ch_total >= 100 or (p and p.completed and quiz_prog > 0): # rough completion definition
+                    completed_chapters += 1
                 
         avg_progress = int(total_progress_sum / total_chapters) if total_chapters > 0 else 0
 
@@ -96,7 +110,7 @@ async def get_chapters(subject_id: int, current_user: models.User = Depends(auth
         .filter(models.ChapterProgress.chapter_id.in_(chapter_ids))
     )
     progress_records = progress_result.scalars().all()
-    completed_set = {p.chapter_id for p in progress_records if p.completed}
+    prog_dict = {p.chapter_id: p for p in progress_records}
 
     # Get quiz attempts for progress calculation
     quiz_result = await db.execute(
@@ -115,7 +129,17 @@ async def get_chapters(subject_id: int, current_user: models.User = Depends(auth
 
     response_data = []
     for c in chapters:
-        view_prog = 30 if c.id in completed_set else 0
+        p = prog_dict.get(c.id)
+        vid_prog = 10 if (p and p.video_completed) else 0
+        exp_prog = 10 if (p and p.explanation_completed) else 0
+        pdf_prog = 10 if (p and p.pdf_completed) else 0
+        
+        # Backwards compat
+        if p and p.completed:
+            view_prog = 30
+        else:
+            view_prog = vid_prog + exp_prog + pdf_prog
+            
         quiz_prog = quiz_scores.get(c.id, 0)
         total_prog = int(view_prog + quiz_prog)
         
@@ -124,12 +148,43 @@ async def get_chapters(subject_id: int, current_user: models.User = Depends(auth
             "subject_id": c.subject_id,
             "chapter_number": c.chapter_number,
             "chapter_name": c.chapter_name,
-            "completed": c.id in completed_set,
-            "progress_percentage": total_prog
+            "completed": p.completed if p else False,
+            "progress_percentage": total_prog,
+            "video_completed": p.video_completed if p else False,
+            "explanation_completed": p.explanation_completed if p else False,
+            "pdf_completed": p.pdf_completed if p else False
         }
         response_data.append(chapter_dict)
         
     return response_data
+
+@router.post("/progress/mark")
+async def mark_section_progress(req: schemas.MarkProgressRequest, current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(models.ChapterProgress).filter(
+            models.ChapterProgress.user_id == current_user.id,
+            models.ChapterProgress.chapter_id == req.chapter_id
+        )
+    )
+    progress = result.scalars().first()
+    
+    if not progress:
+        progress = models.ChapterProgress(user_id=current_user.id, chapter_id=req.chapter_id)
+        db.add(progress)
+        
+    if req.section == 'video':
+        progress.video_completed = True
+    elif req.section == 'explanation':
+        progress.explanation_completed = True
+    elif req.section == 'pdf':
+        progress.pdf_completed = True
+        
+    # Check if all 3 are done, mark whole chapter view completed
+    if progress.video_completed and progress.explanation_completed and progress.pdf_completed:
+        progress.completed = True
+
+    await db.commit()
+    return {"status": "success"}
 
 @router.post("/upload-index")
 async def upload_index(
@@ -215,3 +270,39 @@ async def create_chapter(
     await db.commit()
     await db.refresh(db_chapter)
     return db_chapter
+
+@router.get("/global-stats")
+async def get_global_stats(current_user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)):
+    # Chapters done
+    prog_result = await db.execute(
+        select(models.ChapterProgress).filter(
+            models.ChapterProgress.user_id == current_user.id,
+            models.ChapterProgress.completed == True
+        )
+    )
+    completed_count = len(prog_result.scalars().all())
+    
+    # Avg score
+    quiz_result = await db.execute(
+        select(models.QuizAttempt).filter(
+            models.QuizAttempt.user_id == current_user.id
+        )
+    )
+    attempts = quiz_result.scalars().all()
+    
+    # Best score per chapter
+    best_scores = {}
+    for a in attempts:
+        if a.max_score > 0:
+            pct = (a.score / a.max_score) * 100
+            if a.chapter_id not in best_scores or pct > best_scores[a.chapter_id]:
+                best_scores[a.chapter_id] = pct
+                
+    avg_score = 0
+    if best_scores:
+        avg_score = int(sum(best_scores.values()) / len(best_scores))
+        
+    return {
+        "chapters_done": completed_count,
+        "avg_score": avg_score
+    }
