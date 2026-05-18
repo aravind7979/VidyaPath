@@ -34,16 +34,6 @@ function UploadDashboard() {
   const [manualUploading, setManualUploading] = useState(false);
   const [manualSuccess, setManualSuccess] = useState('');
   
-  // Manual Text State
-  const [manualText, setManualText] = useState('');
-  const [manualTextTitle, setManualTextTitle] = useState('');
-  const [textUploading, setTextUploading] = useState(false);
-  
-  // Manual Quiz State
-  const [quizTitle, setQuizTitle] = useState('');
-  const [quizQuestions, setQuizQuestions] = useState([{ question: '', options: ['', '', '', ''], correctIndex: 0 }]);
-  const [quizUploading, setQuizUploading] = useState(false);
-  
   const fileInputRef = useRef(null);
   const indexInputRef = useRef(null);
 
@@ -200,52 +190,6 @@ function UploadDashboard() {
     }
   };
 
-  const handleManualTextUpload = async () => {
-    if (!selectedChapterId || !manualText || !manualTextTitle) {
-      alert("Please select a chapter and enter title and text.");
-      return;
-    }
-    setTextUploading(true);
-    try {
-      await api.post('/content/manual-text', {
-        chapter_id: parseInt(selectedChapterId),
-        title: manualTextTitle,
-        content: manualText
-      });
-      setSuccess(true);
-      setManualText('');
-      setManualTextTitle('');
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      alert("Upload failed: " + (err.response?.data?.detail || err.message));
-    } finally {
-      setTextUploading(false);
-    }
-  };
-
-  const handleManualQuizUpload = async () => {
-    if (!selectedChapterId || !quizTitle) {
-      alert("Please select a chapter and enter a title.");
-      return;
-    }
-    setQuizUploading(true);
-    try {
-      await api.post('/content/manual-quiz', {
-        chapter_id: parseInt(selectedChapterId),
-        title: quizTitle,
-        quiz_data: quizQuestions
-      });
-      setSuccess(true);
-      setQuizTitle('');
-      setQuizQuestions([{ question: '', options: ['', '', '', ''], correctIndex: 0 }]);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      alert("Upload failed: " + (err.response?.data?.detail || err.message));
-    } finally {
-      setQuizUploading(false);
-    }
-  };
-
   return (
     <div className="fade-in max-w-4xl mx-auto">
       <div className="mb-8">
@@ -253,30 +197,18 @@ function UploadDashboard() {
         <p className="text-[#94A3B8]">AI-powered curriculum management dashboard.</p>
       </div>
 
-      <div className="flex border-b border-white/10 mb-8 overflow-x-auto whitespace-nowrap">
+      <div className="flex border-b border-white/10 mb-8">
         <button
           className={`pb-4 px-6 font-bold transition-all ${activeTab === 'upload_content' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
-          onClick={() => { setActiveTab('upload_content'); setSuccess(false); }}
+          onClick={() => setActiveTab('upload_content')}
         >
           Upload Content
         </button>
         <button
           className={`pb-4 px-6 font-bold transition-all flex items-center gap-2 ${activeTab === 'auto_generate' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
-          onClick={() => { setActiveTab('auto_generate'); setSuccess(false); }}
+          onClick={() => setActiveTab('auto_generate')}
         >
           <Sparkles size={16} /> Auto-Generate Chapters
-        </button>
-        <button
-          className={`pb-4 px-6 font-bold transition-all ${activeTab === 'manual_text' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
-          onClick={() => { setActiveTab('manual_text'); setSuccess(false); }}
-        >
-          Manual Explanation
-        </button>
-        <button
-          className={`pb-4 px-6 font-bold transition-all ${activeTab === 'manual_quiz' ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]' : 'text-[#64748B] hover:text-[#CBD5E1]'}`}
-          onClick={() => { setActiveTab('manual_quiz'); setSuccess(false); }}
-        >
-          Manual Quiz Builder
         </button>
       </div>
 
@@ -308,8 +240,8 @@ function UploadDashboard() {
           </select>
         </div>
 
-        {/* Chapter Selection (Needed for Upload Content, Manual Text, Manual Quiz) */}
-        {['upload_content', 'manual_text', 'manual_quiz'].includes(activeTab) && (
+        {/* Chapter Selection (Only in Upload Content) */}
+        {activeTab === 'upload_content' && (
         <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-5">
           <label className="block text-sm font-bold text-[#CBD5E1] mb-2">3. Select Chapter</label>
           <select 
@@ -325,7 +257,7 @@ function UploadDashboard() {
         )}
       </div>
 
-      {activeTab === 'upload_content' && (
+      {activeTab === 'upload_content' ? (
       <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
         <label className="block text-sm font-bold text-[#CBD5E1] mb-4">4. Upload File</label>
         
@@ -422,8 +354,7 @@ function UploadDashboard() {
           </div>
         )}
       </div>
-      )}
-      {activeTab === 'auto_generate' && (
+      ) : (
       <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
         <label className="block text-sm font-bold text-[#CBD5E1] mb-4">3. Upload Index Image</label>
         <p className="text-[#94A3B8] text-sm mb-6">Upload a photo of the textbook's index page. Our AI will extract the chapter numbers and titles and instantly create them in the database.</p>
@@ -510,155 +441,6 @@ function UploadDashboard() {
           )}
         </div>
       </div>
-      )}
-
-      {activeTab === 'manual_text' && (
-        <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
-          <label className="block text-sm font-bold text-[#CBD5E1] mb-4">4. Manual Explanation Entry</label>
-          <p className="text-[#94A3B8] text-sm mb-6">Type or paste the complete chapter explanation here. This will bypass the AI and show exactly what you enter.</p>
-          
-          <div className="mb-4">
-            <label className="block text-xs font-bold text-[#94A3B8] mb-1 uppercase tracking-wider">Title</label>
-            <input 
-              type="text" 
-              value={manualTextTitle} 
-              onChange={e => setManualTextTitle(e.target.value)}
-              placeholder="e.g. Detailed Chapter Explanation"
-              className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none"
-            />
-          </div>
-          
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-[#94A3B8] mb-1 uppercase tracking-wider">Explanation Content (Supports Markdown)</label>
-            <textarea 
-              value={manualText} 
-              onChange={e => setManualText(e.target.value)}
-              rows={12}
-              placeholder="Start typing your explanation..."
-              className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none font-mono text-sm leading-relaxed"
-            />
-          </div>
-
-          <button 
-            onClick={handleManualTextUpload}
-            disabled={textUploading}
-            className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-          >
-            {textUploading ? <Loader2 className="animate-spin" /> : <FileText />}
-            {textUploading ? "Publishing..." : "Publish Manual Explanation"}
-          </button>
-          
-          {success && (
-            <div className="mt-4 bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] p-4 rounded-xl flex items-center gap-3">
-              <CheckCircle />
-              <span className="font-bold">Successfully published explanation!</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'manual_quiz' && (
-        <div className="bg-[#1E293B] border border-white/5 rounded-2xl p-6">
-          <label className="block text-sm font-bold text-[#CBD5E1] mb-4">4. Manual Quiz Builder</label>
-          <p className="text-[#94A3B8] text-sm mb-6">Build an assessment for this chapter manually to avoid AI generation.</p>
-          
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-[#94A3B8] mb-1 uppercase tracking-wider">Quiz Title</label>
-            <input 
-              type="text" 
-              value={quizTitle} 
-              onChange={e => setQuizTitle(e.target.value)}
-              placeholder="e.g. Chapter 1 Final Assessment"
-              className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none"
-            />
-          </div>
-          
-          <div className="space-y-6 mb-6">
-            {quizQuestions.map((q, qIndex) => (
-              <div key={qIndex} className="bg-[#0F172A] border border-white/5 rounded-xl p-5 relative">
-                <div className="absolute top-4 right-4 text-xs font-bold text-[#64748B]">Q{qIndex + 1}</div>
-                <label className="block text-xs font-bold text-[#CBD5E1] mb-2 uppercase tracking-wider">Question Text</label>
-                <input 
-                  type="text" 
-                  value={q.question} 
-                  onChange={e => {
-                    const newQ = [...quizQuestions];
-                    newQ[qIndex].question = e.target.value;
-                    setQuizQuestions(newQ);
-                  }}
-                  placeholder="Enter your question..."
-                  className="w-full bg-[#1E293B] border border-white/5 rounded-lg px-4 py-3 text-[#F8FAFC] focus:border-[#8B5CF6] outline-none mb-4"
-                />
-                
-                <label className="block text-xs font-bold text-[#CBD5E1] mb-2 uppercase tracking-wider">Options & Correct Answer</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {q.options.map((opt, oIndex) => (
-                    <div key={oIndex} className="flex items-center gap-2 bg-[#1E293B] border border-white/5 rounded-lg p-2">
-                      <input 
-                        type="radio" 
-                        name={`correct-${qIndex}`} 
-                        checked={q.correctIndex === oIndex}
-                        onChange={() => {
-                          const newQ = [...quizQuestions];
-                          newQ[qIndex].correctIndex = oIndex;
-                          setQuizQuestions(newQ);
-                        }}
-                        className="w-4 h-4 accent-[#8B5CF6] ml-2 cursor-pointer"
-                        title="Mark as correct answer"
-                      />
-                      <input 
-                        type="text" 
-                        value={opt}
-                        onChange={e => {
-                          const newQ = [...quizQuestions];
-                          newQ[qIndex].options[oIndex] = e.target.value;
-                          setQuizQuestions(newQ);
-                        }}
-                        placeholder={`Option ${oIndex + 1}`}
-                        className="w-full bg-transparent border-none outline-none text-[#F8FAFC] text-sm"
-                      />
-                    </div>
-                  ))}
-                </div>
-                
-                {quizQuestions.length > 1 && (
-                  <button 
-                    onClick={() => {
-                      const newQ = quizQuestions.filter((_, i) => i !== qIndex);
-                      setQuizQuestions(newQ);
-                    }}
-                    className="mt-4 text-[#EF4444] text-xs font-bold hover:underline"
-                  >
-                    Remove Question
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <button 
-            onClick={() => setQuizQuestions([...quizQuestions, { question: '', options: ['', '', '', ''], correctIndex: 0 }])}
-            className="w-full border-2 border-dashed border-[#334155] hover:border-[#8B5CF6] text-[#94A3B8] hover:text-[#8B5CF6] font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all mb-6"
-          >
-            + Add Another Question
-          </button>
-
-          <button 
-            onClick={handleManualQuizUpload}
-            disabled={quizUploading}
-            className="w-full bg-[#10B981] hover:bg-[#059669] text-white font-bold py-4 px-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-          >
-            {quizUploading ? <Loader2 className="animate-spin" /> : <CheckCircle />}
-            {quizUploading ? "Saving Quiz..." : "Publish Manual Quiz"}
-          </button>
-          
-          {success && (
-            <div className="mt-4 bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] p-4 rounded-xl flex items-center gap-3">
-              <CheckCircle />
-              <span className="font-bold">Successfully published quiz!</span>
-            </div>
-          )}
-        </div>
       )}
     </div>
   );
