@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../store';
 import api from '../api';
+import KnowledgeBrain from './KnowledgeBrain';
 
 const SUBJECT_ICONS = {
   "Telugu": { emoji: "📜" },
@@ -53,9 +54,13 @@ function ChapterList() {
             <div className="flex-1 font-bold text-sm text-[#E2E8F0]">
               {ch.chapter_name}
             </div>
-            {ch.completed && (
+            {ch.completed ? (
               <div className="ml-auto bg-[#34D399]/15 text-[#34D399] text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
                 ✓ Done
+              </div>
+            ) : (
+              <div className="ml-auto">
+                <KnowledgeBrain percentage={ch.progress_percentage || 0} size="w-8 h-8" />
               </div>
             )}
           </div>

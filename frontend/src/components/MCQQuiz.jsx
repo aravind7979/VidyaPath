@@ -16,6 +16,28 @@ function MCQQuiz() {
       setLoading(true);
       setError(null);
       try {
+        // 1. Check for manual quiz first
+        const assetsRes = await api.get(`/content/${uiState.selectedChapterId}/assets`);
+        const manualAsset = assetsRes.data.find(a => a.asset_type === 'quiz');
+        
+        if (manualAsset) {
+          const res = await fetch(`${api.defaults.baseURL}${manualAsset.url}`);
+          if (!res.ok) throw new Error("Failed to load manual quiz");
+          const jsonQuiz = await res.json();
+          
+          const formattedQuiz = jsonQuiz.map(q => ({
+            question: q.question,
+            options: q.options.filter(o => o.trim() !== ''),
+            answer: q.options[q.correctIndex],
+            explanation: "Correct answer selected by the teacher."
+          }));
+          
+          setQuizData(formattedQuiz);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Fallback to AI generation
         const res = await api.post('/ai/generate-mcq', { chapter_id: uiState.selectedChapterId });
         setQuizData(res.data);
       } catch (e) {

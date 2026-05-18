@@ -12,7 +12,8 @@ export default function KnowledgeBrain({ percentage = 0, color = "#0EA5E9", size
         <defs>
           {/* Detailed Brain Silhouette Clip Path */}
           <clipPath id="brain-clip">
-            <path d="M 50 10 C 35 10 20 18 15 35 C 12 48 15 62 25 72 C 28 75 30 80 30 85 C 30 88 33 90 36 90 L 64 90 C 67 90 70 88 70 85 C 70 80 72 75 75 72 C 85 62 88 48 85 35 C 80 18 65 10 50 10 Z" />
+            <path d="M 56.6 91.2 C 57.5 91.6 57.1 93 56.1 93 L 49.3 93 C 48.3 93 47.8 91.6 48.6 91 L 52.8 84.7 C 32.5 83.8 15 68.6 15 48 C 15 28.1 30.6 12 50 12 C 69.4 12 85 28.1 85 48 C 85 64.9 73.2 79.1 57.4 83.6 L 56.6 91.2 Z" />
+            <path d="M 57.4 83.6 C 65 88 80 88 85 75 C 82 70 70 70 59.8 74" />
           </clipPath>
 
           {/* Wave Animation gradient */}
@@ -22,13 +23,11 @@ export default function KnowledgeBrain({ percentage = 0, color = "#0EA5E9", size
           </linearGradient>
         </defs>
 
-        {/* Empty brain background */}
-        <path 
-          d="M 50 10 C 35 10 20 18 15 35 C 12 48 15 62 25 72 C 28 75 30 80 30 85 C 30 88 33 90 36 90 L 64 90 C 67 90 70 88 70 85 C 70 80 72 75 75 72 C 85 62 88 48 85 35 C 80 18 65 10 50 10 Z" 
-          fill="rgba(255,255,255,0.05)" 
-          stroke="rgba(255,255,255,0.2)" 
-          strokeWidth="2" 
-        />
+        <g fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" strokeWidth="2">
+          <path d="M 56.6 91.2 C 57.5 91.6 57.1 93 56.1 93 L 49.3 93 C 48.3 93 47.8 91.6 48.6 91 L 52.8 84.7 C 32.5 83.8 15 68.6 15 48 C 15 28.1 30.6 12 50 12 C 69.4 12 85 28.1 85 48 C 85 64.9 73.2 79.1 57.4 83.6 L 56.6 91.2 Z" />
+          {/* Cerebellum part */}
+          <path d="M 57.4 83.6 C 65 88 80 88 85 75 C 82 70 70 70 59.8 74" fill="rgba(255,255,255,0.02)" />
+        </g>
 
         {/* Fluid Container */}
         <g clipPath="url(#brain-clip)">
@@ -62,10 +61,12 @@ export default function KnowledgeBrain({ percentage = 0, color = "#0EA5E9", size
           )}
         </g>
 
-        {/* Brain Cortex Inner Lines for Detail */}
-        <path d="M 50 10 C 50 30 45 40 50 90" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none" />
+        <path d="M 50 12 C 50 30 45 40 50 83" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none" />
         <path d="M 30 30 C 40 40 30 60 40 70" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none" strokeDasharray="4 2" />
         <path d="M 70 30 C 60 40 70 60 60 70" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" fill="none" strokeDasharray="4 2" />
+        <path d="M 40 25 C 45 20 55 20 60 25" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" fill="none" />
+        <path d="M 35 45 C 45 40 55 40 65 45" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" fill="none" />
+        <path d="M 40 65 C 45 60 55 60 60 65" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" fill="none" />
       </svg>
       
       {/* Overlay percentage text on hover */}

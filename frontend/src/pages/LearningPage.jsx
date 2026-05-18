@@ -12,7 +12,21 @@ import NotepadTrigger from '../components/NotepadTrigger';
 import UploadDashboard from './UploadDashboard';
 
 function LearningPage() {
-  const { uiState } = useAppContext();
+  const { uiState, setUi } = useAppContext();
+
+  const handleBack = () => {
+    switch (uiState.currentStep) {
+      case 'subject': setUi({ currentStep: 'class' }); break;
+      case 'chapter': setUi({ currentStep: 'subject' }); break;
+      case 'learn':
+      case 'quiz':
+      case 'score': setUi({ currentStep: 'chapter' }); break;
+      case 'upload': setUi({ currentStep: 'class' }); break;
+      default: break;
+    }
+  };
+
+  const canGoBack = ['subject', 'chapter', 'learn', 'quiz', 'score', 'upload'].includes(uiState.currentStep);
 
   const renderContent = () => {
     switch (uiState.currentStep) {
@@ -35,6 +49,14 @@ function LearningPage() {
       <div className="flex-1 flex relative">
         {/* Main Content Area */}
         <div className={`p-6 md:p-8 flex-1 overflow-y-auto min-h-screen transition-all ${uiState.showNotepad ? 'md:w-[60%] md:flex-none' : 'w-full'}`}>
+          {canGoBack && (
+            <button 
+              onClick={handleBack}
+              className="mb-6 flex items-center gap-2 text-[#94A3B8] hover:text-[#F8FAFC] font-bold text-sm bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-all"
+            >
+              ← Back
+            </button>
+          )}
           {renderContent()}
         </div>
         

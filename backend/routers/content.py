@@ -114,3 +114,68 @@ async def generate_ai_metadata(req: AIMetadataRequest, current_user: models.User
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class ManualTextRequest(BaseModel):
+    chapter_id: int
+    title: str
+    content: str
+
+@router.post("/manual-text")
+async def upload_manual_text(
+    req: ManualTextRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    new_filename = f"{uuid.uuid4().hex}.txt"
+    file_path = os.path.join(UPLOAD_DIR, new_filename)
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(req.content)
+        
+    file_url = f"/uploads/{new_filename}"
+    
+    asset = models.ContentAsset(
+        chapter_id=req.chapter_id,
+        asset_type="explanation",
+        title=req.title,
+        file_path=file_path,
+        url=file_url,
+        description="Manual teacher explanation"
+    )
+    db.add(asset)
+    await db.commit()
+    await db.refresh(asset)
+    return {"status": "success", "asset_id": asset.id}
+
+class ManualQuizRequest(BaseModel):
+    chapter_id: int
+    title: str
+    quiz_data: dict
+
+@router.post("/manual-quiz")
+async def upload_manual_quiz(
+    req: ManualQuizRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    import json
+    new_filename = f"{uuid.uuid4().hex}.json"
+    file_path = os.path.join(UPLOAD_DIR, new_filename)
+    
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(req.quiz_data, f)
+        
+    file_url = f"/uploads/{new_filename}"
+    
+    asset = models.ContentAsset(
+        chapter_id=req.chapter_id,
+        asset_type="quiz",
+        title=req.title,
+        file_path=file_path,
+        url=file_url,
+        description="Manual teacher quiz"
+    )
+    db.add(asset)
+    await db.commit()
+    await db.refresh(asset)
+    return {"status": "success", "asset_id": asset.id}

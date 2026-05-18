@@ -46,6 +46,7 @@ class SubjectBase(BaseModel):
 class SubjectProgressResponse(SubjectBase):
     total_chapters: int
     completed_chapters: int
+    progress_percentage: int = 0
 
 class ChapterBase(BaseModel):
     id: int
@@ -53,6 +54,7 @@ class ChapterBase(BaseModel):
     chapter_number: int
     chapter_name: str
     completed: bool = False
+    progress_percentage: int = 0
 
     class Config:
         from_attributes = True

@@ -14,6 +14,21 @@ function GeneralExplanation() {
     setError(null);
     setContent('');
     try {
+      // 1. Check for manual explanation first
+      const assetsRes = await api.get(`/content/${uiState.selectedChapterId}/assets`);
+      const manualAsset = assetsRes.data.find(a => a.asset_type === 'explanation');
+      
+      if (manualAsset) {
+        // Fetch raw text from the URL
+        const textRes = await fetch(`${api.defaults.baseURL}${manualAsset.url}`);
+        if (!textRes.ok) throw new Error("Failed to load manual explanation");
+        const text = await textRes.text();
+        setContent(text);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to AI generation
       const response = await fetch(`${api.defaults.baseURL}/ai/explanation`, {
         method: 'POST',
         headers: {

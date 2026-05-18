@@ -52,7 +52,7 @@ function SubjectGrid() {
               <div className="flex justify-between items-start mb-3 relative z-10">
                 <div className="text-4xl">{info.emoji}</div>
                 <KnowledgeBrain 
-                  percentage={sub.total_chapters > 0 ? (sub.completed_chapters / sub.total_chapters) * 100 : 0} 
+                  percentage={sub.progress_percentage || 0} 
                   color={info.color} 
                   size="w-12 h-12"
                 />

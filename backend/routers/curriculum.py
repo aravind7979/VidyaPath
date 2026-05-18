@@ -33,6 +33,7 @@ async def get_subjects(class_id: int, current_user: models.User = Depends(auth.g
         
         # Get completed chapters for this subject and this user
         completed_chapters = 0
+        total_progress_sum = 0
         if chapters:
             chapter_ids = [c.id for c in chapters]
             prog_result = await db.execute(
@@ -41,14 +42,39 @@ async def get_subjects(class_id: int, current_user: models.User = Depends(auth.g
                 .filter(models.ChapterProgress.chapter_id.in_(chapter_ids))
                 .filter(models.ChapterProgress.completed == True)
             )
-            completed_chapters = len(prog_result.scalars().all())
+            prog_records = prog_result.scalars().all()
+            completed_chapters = len(prog_records)
+            completed_set = {p.chapter_id for p in prog_records}
+
+            # Quiz scores (70%)
+            quiz_result = await db.execute(
+                select(models.QuizAttempt)
+                .filter(models.QuizAttempt.user_id == current_user.id)
+                .filter(models.QuizAttempt.chapter_id.in_(chapter_ids))
+            )
+            quiz_records = quiz_result.scalars().all()
             
+            quiz_scores = {}
+            for q in quiz_records:
+                if q.max_score > 0:
+                    percentage = (q.score / q.max_score) * 70
+                    if q.chapter_id not in quiz_scores or percentage > quiz_scores[q.chapter_id]:
+                        quiz_scores[q.chapter_id] = percentage
+                        
+            for ch_id in chapter_ids:
+                view_prog = 30 if ch_id in completed_set else 0
+                quiz_prog = quiz_scores.get(ch_id, 0)
+                total_progress_sum += (view_prog + quiz_prog)
+                
+        avg_progress = int(total_progress_sum / total_chapters) if total_chapters > 0 else 0
+
         response_data.append({
             "id": sub.id,
             "class_id": sub.class_id,
             "subject_name": sub.subject_name,
             "total_chapters": total_chapters,
-            "completed_chapters": completed_chapters
+            "completed_chapters": completed_chapters,
+            "progress_percentage": avg_progress
         })
         
     return response_data
@@ -72,14 +98,34 @@ async def get_chapters(subject_id: int, current_user: models.User = Depends(auth
     progress_records = progress_result.scalars().all()
     completed_set = {p.chapter_id for p in progress_records if p.completed}
 
+    # Get quiz attempts for progress calculation
+    quiz_result = await db.execute(
+        select(models.QuizAttempt)
+        .filter(models.QuizAttempt.user_id == current_user.id)
+        .filter(models.QuizAttempt.chapter_id.in_(chapter_ids))
+    )
+    quiz_records = quiz_result.scalars().all()
+    
+    quiz_scores = {}
+    for q in quiz_records:
+        if q.max_score > 0:
+            percentage = (q.score / q.max_score) * 70
+            if q.chapter_id not in quiz_scores or percentage > quiz_scores[q.chapter_id]:
+                quiz_scores[q.chapter_id] = percentage
+
     response_data = []
     for c in chapters:
+        view_prog = 30 if c.id in completed_set else 0
+        quiz_prog = quiz_scores.get(c.id, 0)
+        total_prog = int(view_prog + quiz_prog)
+        
         chapter_dict = {
             "id": c.id,
             "subject_id": c.subject_id,
             "chapter_number": c.chapter_number,
             "chapter_name": c.chapter_name,
-            "completed": c.id in completed_set
+            "completed": c.id in completed_set,
+            "progress_percentage": total_prog
         }
         response_data.append(chapter_dict)
         
