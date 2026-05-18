@@ -1,7 +1,7 @@
 import sqlite3
 
 def alter_db():
-    conn = sqlite3.connect('C:\\vidyapath\\backend\\vidyapath.db')
+    conn = sqlite3.connect('vidyapath.db')
     c = conn.cursor()
     try:
         c.execute("ALTER TABLE chapter_progress ADD COLUMN video_completed BOOLEAN DEFAULT 0")
