@@ -2,9 +2,6 @@
   <h1>📘 VidyaPath: Enterprise AI Curriculum Engine</h1>
   <p><strong>A Next-Generation, Autonomous Hybrid Intelligence Learning Platform</strong></p>
   
-  <p>
-    <a href="https://vidyapath-delta.vercel.app"><b>Live App: vidyapath-delta.vercel.app</b></a>
-  </p>
 </div>
 
 ---
