@@ -1,28 +1,18 @@
 <div align="center">
-  <img src="https://via.placeholder.com/150/0F172A/0EA5E9?text=VidyaPath" alt="VidyaPath Logo" width="120" height="120" style="border-radius: 20px;">
-  
   <h1>📘 VidyaPath: Enterprise AI Curriculum Engine</h1>
   <p><strong>A Next-Generation, Autonomous Hybrid Intelligence Learning Platform</strong></p>
   
   <p>
     <a href="https://vidyapath-delta.vercel.app"><b>Live App: vidyapath-delta.vercel.app</b></a>
   </p>
-
-  <p>
-    <img src="https://img.shields.io/badge/Status-Active-success.svg" alt="Status" />
-    <img src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi" alt="FastAPI" />
-    <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Vite-61DAFB?logo=react" alt="React" />
-    <img src="https://img.shields.io/badge/AI-Gemini%202.5-4285F4?logo=google" alt="Gemini" />
-    <img src="https://img.shields.io/badge/Desktop-Tauri-FFC131?logo=tauri" alt="Tauri" />
-  </p>
 </div>
 
 ---
 
 ## 🌟 Overview
-**VidyaPath** is fundamentally more than a Curriculum Management System (CMS). It is a highly scalable, autonomous **Hybrid Intelligence Learning Engine** designed to bridge the gap between traditional teacher-led instruction and autonomous LLM-driven personalized learning. 
+**VidyaPath** is fundamentally more than a Curriculum Management System (CMS). It is a highly scalable, autonomous **Hybrid Intelligence Learning Engine** designed to bridge the gap between traditiona[...]
 
-This platform aims to contribute to schools worldwide who want to integrate AI in parallel with their academics, providing a seamless, gamified, and highly personalized learning environment for primary and middle school students.
+This platform aims to contribute to schools worldwide who want to integrate AI in parallel with their academics, providing a seamless, gamified, and highly personalized learning environment for primar[...]
 
 ## 🚀 Key Features
 
@@ -42,7 +32,7 @@ VidyaPath uses **Google Gemini 2.5 Flash** as its cognitive engine, intelligentl
 - **Cost-Optimized Fallback:** The backend natively checks for human-verified, manually uploaded assets (videos, PDFs, custom MCQs) before burning AI inference tokens.
 
 ### 🔐 Frictionless "Transparent" Auth
-To optimize for younger demographics, VidyaPath bypasses complex OAuth or email validation flows. Students simply click their assigned Roll Number to authenticate instantly via JWT, creating a highly personalized dashboard without the friction of traditional sign-ups.
+To optimize for younger demographics, VidyaPath bypasses complex OAuth or email validation flows. Students simply click their assigned Roll Number to authenticate instantly via JWT, creating a highly [...]
 
 ## 💻 Technology Stack
 
